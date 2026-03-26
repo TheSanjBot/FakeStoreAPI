@@ -1,0 +1,36 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Aurora Desk Lamp",
+      "description": "Adjustable brass lamp with warm LED glow for focused evening work.",
+      "category": "Home Office",
+      "price": 79.99,
+      "inStock": true
+    },
+    {
+      "id": 2,
+      "name": "TrailBlaze Backpack",
+      "description": "Water-resistant daypack with padded laptop sleeve and side bottle pockets.",
+      "category": "Travel",
+      "price": 64.5,
+      "inStock": true
+    },
+    {
+      "id": 3,
+      "name": "Pulse Wireless Earbuds",
+      "description": "Noise-reducing earbuds with 24-hour charging case and touch controls.",
+      "category": "Electronics",
+      "price": 129,
+      "inStock": false
+    },
+    {
+      "id": 4,
+      "name": "Harvest Ceramic Mug",
+      "description": "Hand-finished stoneware mug sized for coffee, tea, or a late-night cocoa.",
+      "category": "Kitchen",
+      "price": 18.25,
+      "inStock": true
+    }
+  ]
+}
