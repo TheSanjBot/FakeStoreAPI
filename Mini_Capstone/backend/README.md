@@ -15,7 +15,7 @@ Backend-only implementation of the logistics and shipment tracking system from y
 Work from:
 
 ```powershell
-cd "c:\Users\Sanjay H\OneDrive\Desktop\Mini_Capstone\logistics-api"
+cd "c:\Users\Sanjay H\OneDrive\Desktop\Mini_Capstone\backend"
 ```
 
 ## Run locally
@@ -50,7 +50,7 @@ docker compose up -d mongo
 5. Start the API:
 
 ```powershell
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 ```
 
 6. Open the docs:
@@ -66,7 +66,7 @@ uvicorn app.main:app --reload
 4. In Atlas, click `Connect` on the cluster, choose `Drivers`, and copy the Python connection string.
 5. Replace the `MONGO_URI` value in `.env` with that Atlas URI.
 6. Replace `<db_password>` in the URI with your actual database user password.
-7. Start the API with `uvicorn app.main:app --reload`.
+7. Start the API with `python -m uvicorn app.main:app --reload`.
 
 Example:
 
