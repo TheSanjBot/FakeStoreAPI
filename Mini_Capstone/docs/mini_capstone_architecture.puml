@@ -1,0 +1,57 @@
+@startuml
+title Mini_Capstone - Main Workflow
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam defaultFontName Segoe UI
+hide stereotype
+
+actor Customer
+actor Admin
+actor Agent
+
+package "Frontend\nfrontend/" #FFF6E8 {
+  component "App.jsx\nReact UI" as FE_APP
+  component "api.js\nAPI calls + JWT" as FE_API
+  database "localStorage\nsession" as FE_STORE
+
+  FE_APP --> FE_API
+  FE_APP --> FE_STORE
+}
+
+package "Backend\nbackend/app/" #EAF4FF {
+  component "main.py\nFastAPI app" as BE_MAIN
+  component "api/routes/\nauth\nshipments\ntracking\nadmin\nusers" as BE_ROUTES
+  component "core/\nconfig + auth" as BE_CORE
+  component "services/\nbusiness logic" as BE_SERVICES
+  component "repositories/\ndatabase access" as BE_REPOS
+}
+
+database "MongoDB\nlogistics_db" as DB
+artifact ".env" as ENV_FILE
+
+Customer --> FE_APP : login\ncreate shipment\ntrack
+Admin --> FE_APP : login\nreports\nassign agent
+Agent --> FE_APP : login\nupdate status
+
+FE_API --> BE_MAIN : HTTP /api/v1
+ENV_FILE --> BE_CORE
+BE_MAIN --> BE_ROUTES
+BE_ROUTES --> BE_CORE : auth
+BE_ROUTES --> BE_SERVICES
+BE_SERVICES --> BE_REPOS
+BE_REPOS --> DB
+
+note bottom of BE_SERVICES
+Main workflow
+1. User logs in and gets JWT
+2. Customer creates a shipment
+3. Admin assigns an agent
+4. Agent updates shipment status
+5. Customer/Admin/Agent tracks shipment timeline
+end note
+
+@enduml

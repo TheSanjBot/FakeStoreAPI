@@ -1,0 +1,250 @@
+@startuml
+title Mini_Capstone - Detailed Component Diagram
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam defaultFontName Segoe UI
+hide stereotype
+
+actor Customer
+actor Admin
+actor Agent
+
+package "Frontend\nfrontend/" #FFF6E8 {
+  component "main.jsx\nReact entry" as FE_MAIN
+  component "App.jsx\nrole-based dashboard" as FE_APP
+  component "api.js\nHTTP + JWT" as FE_API
+  component "components/\nFormControls\nPageHeader\nShipmentTable\nUserTable" as FE_COMPONENTS
+  component "styles.css" as FE_STYLES
+  database "localStorage\nsession data" as FE_STORE
+
+  FE_MAIN --> FE_APP
+  FE_MAIN --> FE_STYLES
+  FE_APP --> FE_API
+  FE_APP --> FE_COMPONENTS
+  FE_APP --> FE_STORE
+}
+
+package "Backend\nbackend/" #EAF4FF {
+  artifact ".env" as ENV_FILE
+  component "requirements.txt" as BE_REQ
+  component "docker-compose.yml" as BE_DOCKER
+  component "scripts/seed_data.py" as BE_SCRIPT
+
+  package "app/" #F7FBFF {
+    component "main.py\nFastAPI app entry" as BE_MAIN
+
+    package "api/" #FDFEFF {
+      component "router.py" as API_ROUTER
+
+      package "routes/" #FDFEFF {
+        component "auth.py" as ROUTE_AUTH
+        component "shipments.py" as ROUTE_SHIPMENTS
+        component "tracking.py" as ROUTE_TRACKING
+        component "users.py" as ROUTE_USERS
+        component "admin.py" as ROUTE_ADMIN
+        component "hubs.py" as ROUTE_HUBS
+      }
+    }
+
+    package "controllers/" #FDFEFF {
+      component "auth_controller.py" as CTRL_AUTH
+      component "shipment_controller.py" as CTRL_SHIPMENTS
+      component "tracking_controller.py" as CTRL_TRACKING
+      component "user_controller.py" as CTRL_USERS
+      component "admin_controller.py" as CTRL_ADMIN
+      component "hub_controller.py" as CTRL_HUBS
+    }
+
+    package "services/" #FDFEFF {
+      component "auth_service.py" as SERVICE_AUTH
+      component "shipment_service.py" as SERVICE_SHIPMENTS
+      component "tracking_service.py" as SERVICE_TRACKING
+      component "user_service.py" as SERVICE_USERS
+      component "admin_service.py" as SERVICE_ADMIN
+      component "hub_service.py" as SERVICE_HUBS
+    }
+
+    package "repositories/" #FDFEFF {
+      component "base_repository.py" as REPO_BASE
+      component "user_repository.py" as REPO_USERS
+      component "shipment_repository.py" as REPO_SHIPMENTS
+      component "tracking_repository.py" as REPO_TRACKING
+      component "hub_repository.py" as REPO_HUBS
+    }
+
+    package "models/" #FDFEFF {
+      component "user_model.py" as MODEL_USER
+      component "shipment_model.py" as MODEL_SHIPMENT
+      component "tracking_model.py" as MODEL_TRACKING
+      component "hub_model.py" as MODEL_HUB
+    }
+
+    package "schemas/" #FDFEFF {
+      component "auth_schema.py" as SCHEMA_AUTH
+      component "user_schema.py" as SCHEMA_USER
+      component "shipment_schema.py" as SCHEMA_SHIPMENT
+      component "tracking_schema.py" as SCHEMA_TRACKING
+      component "hub_schema.py" as SCHEMA_HUB
+      component "admin_schema.py" as SCHEMA_ADMIN
+      component "common.py" as SCHEMA_COMMON
+    }
+
+    package "core/" #FDFEFF {
+      component "config.py" as CORE_CONFIG
+      component "security.py" as CORE_SECURITY
+      component "dependencies.py" as CORE_DEP
+      component "database.py" as CORE_DB
+    }
+
+    package "middleware/" #FDFEFF {
+      component "logging_middleware.py" as MW_LOG
+      component "rate_limiter.py" as MW_RATE
+    }
+
+    package "exceptions/" #FDFEFF {
+      component "custom_exceptions.py" as EX_CUSTOM
+      component "exception_handlers.py" as EX_HANDLERS
+    }
+
+    package "utils/" #FDFEFF {
+      component "constants.py" as UTIL_CONST
+      component "helpers.py" as UTIL_HELPERS
+    }
+
+    package "db/" #FDFEFF {
+      component "mongo_client.py" as DB_WRAPPER
+    }
+  }
+}
+
+database "MongoDB\nlogistics_db\nusers\nshipments\ntracking_updates\nhubs" as MONGO
+
+Customer --> FE_APP : register / login\ncreate shipment\ntrack shipment
+Admin --> FE_APP : login\nreports\nassign agent\nmanage hubs
+Agent --> FE_APP : login\nassigned shipments\nupdate status
+
+FE_API --> BE_MAIN : HTTP /api/v1
+
+ENV_FILE --> CORE_CONFIG
+ENV_FILE --> BE_DOCKER
+BE_REQ --> BE_MAIN
+BE_DOCKER --> CORE_DB : runs API + Mongo
+BE_SCRIPT --> CORE_DB
+BE_SCRIPT --> CORE_SECURITY
+BE_SCRIPT --> REPO_USERS
+BE_SCRIPT --> REPO_HUBS
+BE_SCRIPT ..> MODEL_USER
+BE_SCRIPT ..> MODEL_HUB
+BE_SCRIPT --> UTIL_CONST
+
+BE_MAIN --> MW_LOG
+BE_MAIN --> MW_RATE
+BE_MAIN --> EX_HANDLERS
+BE_MAIN --> API_ROUTER
+BE_MAIN --> CORE_DB
+BE_MAIN --> SERVICE_USERS : admin seed on startup
+
+API_ROUTER --> ROUTE_AUTH
+API_ROUTER --> ROUTE_SHIPMENTS
+API_ROUTER --> ROUTE_TRACKING
+API_ROUTER --> ROUTE_USERS
+API_ROUTER --> ROUTE_ADMIN
+API_ROUTER --> ROUTE_HUBS
+
+ROUTE_AUTH --> CORE_DEP : auth dependency
+ROUTE_SHIPMENTS --> CORE_DEP : role checks
+ROUTE_TRACKING --> CORE_DEP : role checks
+ROUTE_USERS --> CORE_DEP : role checks
+ROUTE_ADMIN --> CORE_DEP : role checks
+ROUTE_HUBS --> CORE_DEP : role checks
+
+ROUTE_AUTH --> CTRL_AUTH
+ROUTE_SHIPMENTS --> CTRL_SHIPMENTS
+ROUTE_SHIPMENTS --> CTRL_TRACKING
+ROUTE_TRACKING --> CTRL_TRACKING
+ROUTE_USERS --> CTRL_USERS
+ROUTE_ADMIN --> CTRL_ADMIN
+ROUTE_ADMIN --> CTRL_USERS
+ROUTE_HUBS --> CTRL_HUBS
+
+ROUTE_AUTH ..> SCHEMA_AUTH
+ROUTE_AUTH ..> SCHEMA_USER
+ROUTE_SHIPMENTS ..> SCHEMA_SHIPMENT
+ROUTE_SHIPMENTS ..> SCHEMA_TRACKING
+ROUTE_TRACKING ..> SCHEMA_TRACKING
+ROUTE_USERS ..> SCHEMA_USER
+ROUTE_ADMIN ..> SCHEMA_ADMIN
+ROUTE_ADMIN ..> SCHEMA_COMMON
+ROUTE_HUBS ..> SCHEMA_HUB
+
+CTRL_AUTH --> SERVICE_AUTH
+CTRL_SHIPMENTS --> SERVICE_SHIPMENTS
+CTRL_TRACKING --> SERVICE_TRACKING
+CTRL_TRACKING --> SERVICE_SHIPMENTS : tracking access
+CTRL_USERS --> SERVICE_USERS
+CTRL_ADMIN --> SERVICE_ADMIN
+CTRL_HUBS --> SERVICE_HUBS
+
+SERVICE_AUTH --> REPO_USERS
+SERVICE_SHIPMENTS --> REPO_SHIPMENTS
+SERVICE_SHIPMENTS --> REPO_USERS
+SERVICE_SHIPMENTS --> REPO_TRACKING
+SERVICE_TRACKING --> REPO_SHIPMENTS
+SERVICE_TRACKING --> REPO_TRACKING
+SERVICE_USERS --> REPO_USERS
+SERVICE_ADMIN --> REPO_USERS
+SERVICE_ADMIN --> REPO_SHIPMENTS
+SERVICE_ADMIN --> REPO_HUBS
+SERVICE_HUBS --> REPO_HUBS
+
+SERVICE_AUTH ..> MODEL_USER
+SERVICE_SHIPMENTS ..> MODEL_SHIPMENT
+SERVICE_TRACKING ..> MODEL_TRACKING
+SERVICE_USERS ..> MODEL_USER
+SERVICE_HUBS ..> MODEL_HUB
+
+SERVICE_AUTH --> UTIL_HELPERS
+SERVICE_SHIPMENTS --> UTIL_HELPERS
+SERVICE_TRACKING --> UTIL_HELPERS
+SERVICE_HUBS --> UTIL_HELPERS
+SERVICE_AUTH --> UTIL_CONST
+SERVICE_SHIPMENTS --> UTIL_CONST
+SERVICE_TRACKING --> UTIL_CONST
+SERVICE_USERS --> UTIL_CONST
+SERVICE_ADMIN --> UTIL_CONST
+
+CORE_DEP --> CORE_SECURITY
+CORE_DEP --> REPO_USERS : load current user
+DB_WRAPPER --> CORE_DB
+REPO_BASE --> CORE_DB
+REPO_USERS -up-|> REPO_BASE
+REPO_SHIPMENTS -up-|> REPO_BASE
+REPO_TRACKING -up-|> REPO_BASE
+REPO_HUBS -up-|> REPO_BASE
+CORE_DB --> MONGO
+
+EX_HANDLERS --> EX_CUSTOM
+CORE_SECURITY --> UTIL_HELPERS
+
+note bottom of BE_MAIN
+Startup flow:
+1. Load config
+2. Connect MongoDB
+3. Ensure indexes
+4. Seed admin user
+5. Attach middleware and routes
+end note
+
+note bottom of SERVICE_SHIPMENTS
+Main project workflow:
+Customer creates shipment ->
+Admin assigns agent ->
+Agent updates status ->
+Users track shipment timeline
+end note
+
+@enduml

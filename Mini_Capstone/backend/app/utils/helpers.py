@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from secrets import token_hex
 from typing import Any
 
@@ -13,7 +13,7 @@ from app.utils.constants import TRACKING_PREFIX
 
 
 def utc_now() -> datetime:
-    return datetime.now(UTC)
+    return datetime.now(timezone.utc)
 
 
 def generate_tracking_number() -> str:
